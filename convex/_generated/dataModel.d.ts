@@ -29,24 +29,28 @@ import type { GenericId } from "convex/values";
 export type DataModel = {
   users: {
     document: {
-      clerkId: string;
+      authUserId: string;
       email: string;
-      imageUrl?: string;
-      name?: string;
+      fullName: string;
+      profileComplete: boolean;
+      role: "user" | "superAdmin";
+      status?: "active" | "blocked";
       _id: Id<"users">;
       _creationTime: number;
     };
     fieldPaths:
       | "_creationTime"
       | "_id"
-      | "clerkId"
+      | "authUserId"
       | "email"
-      | "imageUrl"
-      | "name";
+      | "fullName"
+      | "profileComplete"
+      | "role"
+      | "status";
     indexes: {
       by_id: ["_id"];
       by_creation_time: ["_creationTime"];
-      by_clerkId: ["clerkId", "_creationTime"];
+      by_authUserId: ["authUserId", "_creationTime"];
     };
     searchIndexes: {};
     vectorIndexes: {};

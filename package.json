@@ -1,0 +1,46 @@
+{
+  "name": "operavax-hub",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "concurrently --kill-others \"next dev --turbopack\" \"npx convex dev\"",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@clerk/clerk-react": "^5.61.3",
+    "@clerk/nextjs": "^6.39.0",
+    "@hookform/resolvers": "^5.2.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "convex": "^1.32.0",
+    "framer-motion": "^12.34.3",
+    "lucide-react": "^0.575.0",
+    "next": "^15.5.12",
+    "radix-ui": "^1.4.3",
+    "react": "^19.1.4",
+    "react-dom": "^19.1.4",
+    "react-hook-form": "^7.72.1",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.5.0",
+    "vaul": "^1.1.2",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.4",
+    "@tailwindcss/postcss": "^4.2.1",
+    "@types/node": "^25.3.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "concurrently": "^9.2.1",
+    "eslint": "^9.39.3",
+    "eslint-config-next": "^15.5.12",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.9.3"
+  }
+}

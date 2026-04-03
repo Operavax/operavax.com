@@ -124,4 +124,11 @@ export const CATEGORIES: Category[] = [
   { id: "social_membership", label: "Social, NGO & Membership", color: "#DB4437", icon: "users" },
   { id: "travel_hospitality", label: "Travel & Hospitality", color: "#4285F4", icon: "globe" },
   { id: "environmental", label: "Environmental", color: "#0F9D58", icon: "leaf" },
+  { id: "mining", label: "Mining & Energy", color: "#F4B400", icon: "zap" },
+  { id: "banking", label: "Banking", color: "#4285F4", icon: "briefcase" },
+  { id: "telecom", label: "Telecommunications", color: "#0F9D58", icon: "globe" },
+  { id: "media", label: "Media & Entertainment", color: "#DB4437", icon: "users" },
+  { id: "defence", label: "Defence & Security", color: "#4285F4", icon: "shield" },
+  { id: "tech", label: "Technology & IT", color: "#0F9D58", icon: "zap" },
+  { id: "maritime", label: "Maritime & Ports", color: "#4285F4", icon: "globe" },
 ];

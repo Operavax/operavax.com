@@ -7,6 +7,7 @@ import {
   Layers,
 } from "lucide-react";
 import { SplashScreen } from "./splash-screen";
+import { RoleBasedRedirect } from "@/components/shared/role-based-redirect";
 import { HubNavbar, type HubView } from "./hub-navbar";
 import { HubFooter } from "./hub-footer";
 import { ProductCard } from "./product-card";
@@ -188,6 +189,7 @@ export function HubContent() {
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
+      <RoleBasedRedirect expectedRole="user" />
       <HubNavbar
         activeTab={activeTab}
         onTabChange={handleTabChange}

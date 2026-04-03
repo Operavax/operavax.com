@@ -5,6 +5,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAuth, useClerk, useUser } from "@clerk/nextjs";
 import {
+  ArrowRight,
   HelpCircle,
   LogOut,
   Menu as MenuIcon,
@@ -23,6 +24,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AuthSheet } from "@/components/auth/auth-sheet";
 import { cn } from "@/lib/utils";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { getDashboardPathForRole } from "@/lib/dashboard-routing";
 
 function getInitials(fullName?: string | null): string {
   const initials = (fullName ?? "")
@@ -81,6 +85,9 @@ export function ProfileDropdown() {
   const { signOut } = useClerk();
   const [authOpen, setAuthOpen] = useState(false);
   const [authView, setAuthView] = useState<"login" | "signup">("login");
+  const convexUser = useQuery(api.users.getCurrentUser);
+  const dashboardPath = convexUser ? getDashboardPathForRole(convexUser.role) : null;
+  const showDashboard = dashboardPath && dashboardPath !== "/";
 
   if (!isLoaded) {
     return <TriggerButton disabled signedIn={false} />;
@@ -118,6 +125,14 @@ export function ProfileDropdown() {
               </span>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            {showDashboard && (
+              <DropdownMenuItem asChild className="cursor-pointer py-2">
+                <Link className="flex items-center gap-2" href={dashboardPath}>
+                  <ArrowRight className="size-4 text-[#4285F4]" />
+                  Back to Dashboard
+                </Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem asChild className="cursor-pointer py-2">
               <Link className="flex items-center gap-2" href="/hub">
                 <Globe className="size-4 text-[#4285F4]" />

@@ -14,10 +14,10 @@ import {
 } from "lucide-react";
 
 const stats = [
-  { label: "Products", value: "2", icon: Package, color: "text-[#4285F4]", surface: "bg-[#E8F0FE]", href: "/super/administrator/products" },
-  { label: "Sectors", value: "31", icon: Map, color: "text-[#0F9D58]", surface: "bg-[#E6F4EA]", href: "/super/administrator/sectors" },
-  { label: "Categories", value: "25", icon: Layers, color: "text-[#7C3AED]", surface: "bg-[#F3E8FF]", href: "/super/administrator/categories" },
-  { label: "Users", value: "0", icon: Users, color: "text-[#F4B400]", surface: "bg-[#FEF7E0]", href: "/super/administrator/users" },
+  { label: "Products", value: "2", icon: Package, color: "text-[#4285F4]", surface: "bg-[#E8F0FE]", href: "/super/administrator/products", footer: "Active products" },
+  { label: "Sectors", value: "31", icon: Map, color: "text-[#0F9D58]", surface: "bg-[#E6F4EA]", href: "/super/administrator/sectors", footer: "Platform sectors" },
+  { label: "Categories", value: "25", icon: Layers, color: "text-[#7C3AED]", surface: "bg-[#F3E8FF]", href: "/super/administrator/categories", footer: "Live categories" },
+  { label: "Users", value: "0", icon: Users, color: "text-[#F4B400]", surface: "bg-[#FEF7E0]", href: "/super/administrator/users", footer: "Registered users" },
 ];
 
 const quickLinks = [
@@ -41,18 +41,22 @@ export default function SuperAdminOverview() {
           <Link
             key={stat.label}
             href={stat.href}
-            className="group rounded-xl md:rounded-2xl border border-[#E2E8F0] bg-white p-4 md:p-5 transition-all hover:shadow-md hover:border-[#ddd]"
+            className="group rounded-xl md:rounded-2xl border border-[#E2E8F0] bg-white px-3 py-3 md:px-4 md:py-4 transition-all hover:shadow-md hover:border-[#ddd]"
           >
             <div className="flex items-center justify-between mb-3">
-              <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${stat.surface}`}>
+              <div className={`flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-xl ${stat.surface}`}>
                 <stat.icon className={`h-4 w-4 ${stat.color}`} />
               </div>
               <ArrowRight className="h-3.5 w-3.5 text-[#ccc] transition-all group-hover:text-[#4285F4] group-hover:translate-x-0.5" />
             </div>
-            <p className="font-display text-2xl md:text-3xl font-bold tracking-tight text-[#222]">
+            <p
+              className="font-display text-xl md:text-2xl font-bold tracking-tight text-[#222]"
+              style={{ fontVariantNumeric: "tabular-nums" }}
+            >
               {stat.value}
             </p>
-            <p className="mt-0.5 text-xs font-medium text-[#6a6a6a]">{stat.label}</p>
+            <p className="mt-0.5 text-[11px] md:text-sm text-[#6a6a6a]">{stat.label}</p>
+            <p className="mt-1 text-xs md:text-sm font-medium text-[#222]">{stat.footer}</p>
           </Link>
         ))}
       </div>

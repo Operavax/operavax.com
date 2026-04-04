@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { LogOut, Globe, ChevronDown } from "lucide-react";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,41 +52,42 @@ export function SuperAdminHeader() {
   const meta = PAGE_META[pathname] ?? { title: "Dashboard", description: "" };
 
   return (
-    <header className="flex h-12 shrink-0 items-center gap-2 border-b border-[#E2E8F0] px-3 md:px-4">
-      {/* Sidebar trigger (desktop only, visible when collapsed) */}
+    <header className="sticky top-0 z-10 flex h-16 md:h-14 shrink-0 items-center gap-3 border-b border-[#E2E8F0] bg-white/95 backdrop-blur px-4 md:px-4 lg:px-6">
+      {/* Sidebar trigger – mobile (always visible) */}
+      <SidebarTrigger className="md:hidden flex size-10 shrink-0 rounded-lg border-0 bg-transparent text-[#475569] shadow-none hover:bg-[#f7f7f7]" />
+
+      {/* Sidebar trigger – desktop (visible when collapsed) */}
       <SidebarTrigger className="hidden md:flex h-8 w-8 shrink-0 rounded-lg border-0 bg-transparent text-[#475569] shadow-none hover:bg-[#f7f7f7]" />
 
       {/* Page meta */}
-      <div className="flex-1 min-w-0">
-        <h1 className="font-display text-sm font-bold tracking-tight text-[#222] truncate">
+      <div className="min-w-0 flex-1">
+        <h1 className="font-display text-sm md:text-base font-bold leading-tight tracking-tight text-[#222] truncate">
           {meta.title}
         </h1>
-        <p className="hidden md:block text-[11px] text-[#6a6a6a] truncate">
+        <p className="hidden md:block text-xs leading-tight text-[#6a6a6a] truncate">
           {meta.description}
         </p>
       </div>
 
-      {/* Right: public site + avatar */}
-      <div className="flex items-center gap-2">
-        <Link
-          href="/"
-          className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#E2E8F0] px-3 py-1.5 text-xs font-semibold text-[#222] transition-all hover:bg-[#f7f7f7]"
-        >
-          <Globe className="h-3.5 w-3.5 text-[#4285F4]" />
-          View Public Site
-        </Link>
-
+      {/* Right: avatar dropdown */}
+      <div className="flex items-center gap-3">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-1.5 rounded-full p-1 transition-colors hover:bg-[#f7f7f7]">
-              <Avatar className="size-7">
+            <Button
+              variant="ghost"
+              className="flex h-10 items-center gap-1.5 rounded-xl border border-transparent px-2 md:h-9 md:gap-2 md:px-3 data-[state=open]:bg-[#f5f5f5]"
+            >
+              <Avatar className="h-7 w-7 md:h-8 md:w-8 rounded-lg">
                 <AvatarImage src={user?.imageUrl ?? undefined} alt={user?.fullName ?? "Admin"} />
-                <AvatarFallback className="rounded-full bg-[#4285F4] text-[10px] font-bold text-white">
+                <AvatarFallback className="rounded-lg bg-[#4285F4] text-white text-xs md:text-sm">
                   {getInitials(user?.fullName)}
                 </AvatarFallback>
               </Avatar>
+              <span className="hidden max-w-[120px] truncate text-sm font-medium text-[#222] sm:inline">
+                {user?.fullName ?? "Super Admin"}
+              </span>
               <ChevronDown className="h-3 w-3 text-[#6a6a6a]" />
-            </button>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="mt-1 w-48 rounded-xl border-[#ddd] shadow-xl">
             <DropdownMenuItem asChild className="cursor-pointer py-2">

@@ -20,8 +20,8 @@ export function AuthSplash({
     <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-white">
       <style>{`
         @keyframes splash-spin {
-          from { transform: translate(-50%,-50%) rotate(0deg); }
-          to   { transform: translate(-50%,-50%) rotate(360deg); }
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
         }
         @keyframes splash-icon-in {
           from { opacity: 0; transform: scale(0.65) translateY(8px); }
@@ -151,6 +151,9 @@ function OrbitRing({
         border: `${borderWidth}px solid ${color}`,
         top: "50%",
         left: "50%",
+        marginTop: -(size / 2),
+        marginLeft: -(size / 2),
+        willChange: "transform",
         animation: `splash-spin ${duration}s linear infinite ${reverse ? "reverse" : ""}`,
       }}
     >

@@ -96,10 +96,10 @@ export function HubContent() {
 
       setNavFlashProduct(product);
       setNavFlashLabel(sectorName ? `${product.name} \u2014 ${sectorName}` : product.name);
-      setTimeout(() => setNavFlashActive(true), 250);
+      setTimeout(() => setNavFlashActive(true), 300);
       setTimeout(() => {
         window.location.href = `https://${url}`;
-      }, 700);
+      }, 2800);
     },
     []
   );

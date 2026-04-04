@@ -19,7 +19,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://operavax.com";
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: "Operavax — One Platform. Every Sector.",
+    default: "Operavax",
     template: "%s | Operavax",
   },
   description:
@@ -27,17 +27,26 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Operavax",
-    title: "Operavax — One Platform. Every Sector.",
+    title: "Operavax",
     description:
       "The central hub for the Operavax ecosystem. Access forms, management dashboards, reports, payments, and more across every sector.",
     url: APP_URL,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Operavax — One Platform. Every Sector.",
+    title: "Operavax",
     description:
       "The central hub for the Operavax ecosystem. Access forms, management dashboards, reports, payments, and more across every sector.",
   },
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({

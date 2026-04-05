@@ -19,6 +19,14 @@ const groupColors: Record<string, { text: string; bg: string }> = {
   infra: { text: "text-[#7C3AED]", bg: "bg-[#F3E8FF]" },
 };
 
+function chunk<T>(arr: T[], size: number): T[][] {
+  const result: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) {
+    result.push(arr.slice(i, i + size));
+  }
+  return result;
+}
+
 const grouped = Object.entries(groupLabels).map(([key, label]) => ({
   key,
   label,
@@ -81,28 +89,32 @@ export default function SectorsPage() {
                 {group.sectors.length !== 1 ? "s" : ""}
               </span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-              {group.sectors.map((sector) => (
-                <div
-                  key={sector.id}
-                  className="rounded-xl md:rounded-2xl border border-[#E2E8F0] bg-white p-3.5 md:p-4 transition-all hover:shadow-md hover:border-[#ddd]"
-                >
-                  <div className="flex items-center gap-2.5 mb-2">
+            <div className="space-y-2 md:space-y-3">
+              {chunk(group.sectors, 10).map((row, i) => (
+                <div key={i} className="-mx-3 md:-mx-6 flex gap-3 overflow-x-auto px-3 md:px-6 pb-1 md:pb-2">
+                  {row.map((sector) => (
                     <div
-                      className="h-3 w-3 rounded-full shrink-0"
-                      style={{ backgroundColor: sector.color }}
-                    />
-                    <span className="font-display text-sm font-bold tracking-tight text-[#222] leading-tight truncate">
-                      {sector.name}
-                    </span>
-                  </div>
-                  <span
-                    className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                      groupColors[sector.group].bg
-                    } ${groupColors[sector.group].text}`}
-                  >
-                    {groupLabels[sector.group]}
-                  </span>
+                      key={sector.id}
+                      className="w-[200px] flex-shrink-0 rounded-xl md:rounded-2xl border border-[#E2E8F0] bg-white p-3.5 md:p-4 transition-all hover:shadow-md hover:border-[#ddd]"
+                    >
+                      <div className="flex items-center gap-2.5 mb-2">
+                        <div
+                          className="h-3 w-3 rounded-full shrink-0"
+                          style={{ backgroundColor: sector.color }}
+                        />
+                        <span className="font-display text-sm font-bold tracking-tight text-[#222] leading-tight truncate">
+                          {sector.name}
+                        </span>
+                      </div>
+                      <span
+                        className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                          groupColors[sector.group].bg
+                        } ${groupColors[sector.group].text}`}
+                      >
+                        {groupLabels[sector.group]}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>

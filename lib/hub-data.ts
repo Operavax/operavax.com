@@ -9,6 +9,7 @@ export interface Product {
   visible: boolean;
   needsSector: boolean;
   icon: string;
+  group: string;
 }
 
 export interface Sector {
@@ -48,6 +49,7 @@ export const PRODUCTS: Product[] = [
     visible: true,
     needsSector: false,
     icon: "book",
+    group: "compliance",
   },
   {
     id: "report",
@@ -60,6 +62,7 @@ export const PRODUCTS: Product[] = [
     visible: true,
     needsSector: true,
     icon: "camera",
+    group: "government",
   },
 ];
 

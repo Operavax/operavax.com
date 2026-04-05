@@ -145,7 +145,7 @@ export function HubContent() {
       (p) =>
         p.visible &&
         p.name.toLowerCase().includes(q) &&
-        (selectedCategory === undefined || p.id === selectedCategory)
+        (selectedCategory === undefined || p.group === selectedCategory)
     );
   }, [products, searchQuery, selectedCategory]);
 
@@ -166,6 +166,59 @@ export function HubContent() {
     const q = searchQuery.toLowerCase();
     return SECTORS.filter((s) => s.name.toLowerCase().includes(q));
   }, [searchQuery]);
+
+  const SECTOR_ORDER = SECTORS.map((s) => s.id);
+
+  function groupBySector<T>(
+    items: T[],
+    getSectorId: (item: T) => string | null | undefined
+  ) {
+    const groupMap = new Map<string, T[]>();
+    for (const item of items) {
+      const sectorId = getSectorId(item) ?? "other";
+      groupMap.set(sectorId, [...(groupMap.get(sectorId) ?? []), item]);
+    }
+    return [...groupMap.keys()]
+      .sort((a, b) => {
+        const idxA = SECTOR_ORDER.indexOf(a);
+        const idxB = SECTOR_ORDER.indexOf(b);
+        return (idxA === -1 ? 999 : idxA) - (idxB === -1 ? 999 : idxB);
+      })
+      .map((sectorId) => ({
+        sectorId,
+        label: SECTORS.find((s) => s.id === sectorId)?.name ?? sectorId,
+        items: groupMap.get(sectorId)!,
+      }));
+  }
+
+  // Products grouped by sector (shown when no filter active)
+  const productsByGroup = useMemo(() => {
+    if (selectedCategory || searchQuery) return null;
+    return groupBySector(visibleProducts, (p) => p.group);
+  }, [visibleProducts, selectedCategory, searchQuery]);
+
+  // Favourites grouped by product's category (same as Products tab)
+  const favouritesByGroup = useMemo(
+    () => groupBySector(filteredFavourites, (f) => {
+      const product = products.find((p) => p.id === f.productId);
+      return product?.group ?? null;
+    }),
+    [filteredFavourites, products]
+  );
+
+  // Recents grouped by product's category (same as Products tab)
+  const recentsByGroup = useMemo(
+    () => groupBySector(filteredRecents, (r) => {
+      const product = products.find((p) => p.id === r.productId);
+      return product?.group ?? null;
+    }),
+    [filteredRecents, products]
+  );
+
+  function getSectorLabel(sectorId: string | null | undefined): string | undefined {
+    if (!sectorId) return undefined;
+    return SECTORS.find((s) => s.id === sectorId)?.name;
+  }
 
   // Helper to build favItem for a product
   function makeFavItem(product: Product): FavouriteItem | null {
@@ -206,46 +259,115 @@ export function HubContent() {
             <>
               {visibleProducts.length > 0 ? (
                 <>
-                  {/* Mobile */}
-                  <div className="flex flex-wrap gap-2 md:hidden">
-                    {visibleProducts.map((product) => {
-                      const favItem = makeFavItem(product);
-                      return (
-                        <div key={product.id} className="w-[calc(50%-4px)]">
-                          <ProductCard
-                            id={product.id} name={product.name} tagline={product.tagline}
-                            color={product.color} bg={product.bg} url={product.url}
-                            badge={product.badge} icon={product.icon}
-                            isFavourited={favItem ? isFavourited(favItem.url) : false}
-                            favouriteItem={favItem}
-                            onClick={() => handleProductClick(product)}
-                            onToggleFavourite={favItem ? () => handleToggleFavourite(favItem) : undefined}
-                            compact
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {/* Desktop */}
-                  <div className="hidden md:grid md:grid-cols-6 md:gap-3">
-                    {visibleProducts.map((product) => {
-                      const favItem = makeFavItem(product);
-                      return (
-                        <div key={product.id} className="w-full">
-                          <ProductCard
-                            id={product.id} name={product.name} tagline={product.tagline}
-                            color={product.color} bg={product.bg} url={product.url}
-                            badge={product.badge} icon={product.icon}
-                            isFavourited={favItem ? isFavourited(favItem.url) : false}
-                            favouriteItem={favItem}
-                            onClick={() => handleProductClick(product)}
-                            onToggleFavourite={favItem ? () => handleToggleFavourite(favItem) : undefined}
-                            compact
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
+                  {/* ── Default view: grouped by category ── */}
+                  {productsByGroup && (
+                    <>
+                      {/* Mobile */}
+                      <div className="space-y-7 md:hidden">
+                        {productsByGroup.map(({ sectorId, label, items }) => (
+                          <div key={sectorId}>
+                            <div className="mb-2.5 flex items-center justify-between">
+                              <h2 className="font-display text-[15px] font-bold tracking-tight text-gray-900">{label}</h2>
+                            </div>
+                            <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1">
+                              {items.map((product) => {
+                                const favItem = makeFavItem(product);
+                                return (
+                                  <div key={product.id} className="w-[235px] flex-shrink-0">
+                                    <ProductCard
+                                      id={product.id} name={product.name} tagline={product.tagline}
+                                      color={product.color} bg={product.bg} url={product.url}
+                                      badge={product.badge} categoryLabel={getSectorLabel(product.group)} icon={product.icon}
+                                      isFavourited={favItem ? isFavourited(favItem.url) : false}
+                                      favouriteItem={favItem}
+                                      onClick={() => handleProductClick(product)}
+                                      onToggleFavourite={favItem ? () => handleToggleFavourite(favItem) : undefined}
+                                      compact
+                                    />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      {/* Desktop */}
+                      <div className="hidden md:block space-y-10">
+                        {productsByGroup.map(({ sectorId, label, items }) => (
+                          <div key={sectorId}>
+                            <div className="mb-4 flex items-center justify-between">
+                              <h2 className="font-display text-xl font-bold tracking-tight text-gray-900">{label}</h2>
+                            </div>
+                            <div className="-mx-10 flex gap-3 overflow-x-auto px-10 pb-2">
+                              {items.map((product) => {
+                                const favItem = makeFavItem(product);
+                                return (
+                                  <div key={product.id} className="w-[235px] flex-shrink-0">
+                                    <ProductCard
+                                      id={product.id} name={product.name} tagline={product.tagline}
+                                      color={product.color} bg={product.bg} url={product.url}
+                                      badge={product.badge} categoryLabel={getSectorLabel(product.group)} icon={product.icon}
+                                      isFavourited={favItem ? isFavourited(favItem.url) : false}
+                                      favouriteItem={favItem}
+                                      onClick={() => handleProductClick(product)}
+                                      onToggleFavourite={favItem ? () => handleToggleFavourite(favItem) : undefined}
+                                      compact
+                                    />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {/* ── Filtered / search view: flat horizontal scroll ── */}
+                  {!productsByGroup && (
+                    <>
+                      {/* Mobile */}
+                      <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 md:hidden">
+                        {visibleProducts.map((product) => {
+                          const favItem = makeFavItem(product);
+                          return (
+                            <div key={product.id} className="w-[235px] flex-shrink-0">
+                              <ProductCard
+                                id={product.id} name={product.name} tagline={product.tagline}
+                                color={product.color} bg={product.bg} url={product.url}
+                                badge={product.badge} categoryLabel={getSectorLabel(product.group)} icon={product.icon}
+                                isFavourited={favItem ? isFavourited(favItem.url) : false}
+                                favouriteItem={favItem}
+                                onClick={() => handleProductClick(product)}
+                                onToggleFavourite={favItem ? () => handleToggleFavourite(favItem) : undefined}
+                                compact
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {/* Desktop */}
+                      <div className="hidden md:flex md:flex-wrap md:gap-3">
+                        {visibleProducts.map((product) => {
+                          const favItem = makeFavItem(product);
+                          return (
+                            <div key={product.id} className="w-[235px]">
+                              <ProductCard
+                                id={product.id} name={product.name} tagline={product.tagline}
+                                color={product.color} bg={product.bg} url={product.url}
+                                badge={product.badge} categoryLabel={getSectorLabel(product.group)} icon={product.icon}
+                                isFavourited={favItem ? isFavourited(favItem.url) : false}
+                                favouriteItem={favItem}
+                                onClick={() => handleProductClick(product)}
+                                onToggleFavourite={favItem ? () => handleToggleFavourite(favItem) : undefined}
+                                compact
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
                 </>
               ) : (
                 <div className="flex flex-col items-center justify-center pb-20 pt-24 text-center px-6">
@@ -269,7 +391,7 @@ export function HubContent() {
               {filteredSectors.length > 0 ? (
                 <>
                   {/* Mobile */}
-                  <div className="flex flex-wrap gap-2 md:hidden">
+                  <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1 md:hidden">
                     {filteredSectors.map((sector) => {
                       const url = `${selectedProduct.url}/${sector.id}`;
                       const favItem: FavouriteItem = {
@@ -279,10 +401,11 @@ export function HubContent() {
                         productBg: selectedProduct.bg, productIcon: selectedProduct.icon,
                       };
                       return (
-                        <div key={sector.id} className="w-[calc(50%-4px)]">
+                        <div key={sector.id} className="w-[235px] flex-shrink-0">
                           <ProductCard
                             id={sector.id} name={sector.name} color={sector.color}
                             bg={`${sector.color}18`} url={url} icon="circle"
+                            categoryLabel={sector.name}
                             isFavourited={isFavourited(url)} favouriteItem={favItem}
                             onClick={() => handleSectorClick(sector.id, sector.name)}
                             onToggleFavourite={() => handleToggleFavourite(favItem)}
@@ -293,7 +416,7 @@ export function HubContent() {
                     })}
                   </div>
                   {/* Desktop */}
-                  <div className="hidden md:grid md:grid-cols-6 md:gap-3">
+                  <div className="hidden md:flex md:flex-wrap md:gap-3">
                     {filteredSectors.map((sector) => {
                       const url = `${selectedProduct.url}/${sector.id}`;
                       const favItem: FavouriteItem = {
@@ -303,10 +426,11 @@ export function HubContent() {
                         productBg: selectedProduct.bg, productIcon: selectedProduct.icon,
                       };
                       return (
-                        <div key={sector.id} className="w-full">
+                        <div key={sector.id} className="w-[235px]">
                           <ProductCard
                             id={sector.id} name={sector.name} color={sector.color}
                             bg={`${sector.color}18`} url={url} icon="circle"
+                            categoryLabel={sector.name}
                             isFavourited={isFavourited(url)} favouriteItem={favItem}
                             onClick={() => handleSectorClick(sector.id, sector.name)}
                             onToggleFavourite={() => handleToggleFavourite(favItem)}
@@ -328,31 +452,51 @@ export function HubContent() {
             <>
               {filteredFavourites.length > 0 ? (
                 <>
-                  <div className="flex flex-wrap gap-2 md:hidden">
-                    {filteredFavourites.map((fav) => (
-                      <div key={fav.url} className="w-[calc(50%-4px)]">
-                        <ProductCard
-                          id={fav.productId + (fav.sectorId || "")} name={fav.name}
-                          color={fav.productColor} bg={fav.productBg} url={fav.url}
-                          icon={fav.productIcon} isFavourited={true} favouriteItem={fav}
-                          onClick={() => handleFavouriteClick(fav)}
-                          onToggleFavourite={() => handleToggleFavourite(fav)}
-                          compact
-                        />
+                  {/* Mobile */}
+                  <div className="space-y-7 md:hidden">
+                    {favouritesByGroup.map(({ sectorId, label, items }) => (
+                      <div key={sectorId}>
+                        <div className="mb-2.5 flex items-center justify-between">
+                          <h2 className="font-display text-[15px] font-bold tracking-tight text-gray-900">{label}</h2>
+                        </div>
+                        <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1">
+                          {items.map((fav) => (
+                            <div key={fav.url} className="w-[235px] flex-shrink-0">
+                              <ProductCard
+                                id={fav.productId + (fav.sectorId || "")} name={fav.name}
+                                color={fav.productColor} bg={fav.productBg} url={fav.url}
+                                icon={fav.productIcon} categoryLabel={getSectorLabel(products.find((p) => p.id === fav.productId)?.group)} isFavourited={true} favouriteItem={fav}
+                                onClick={() => handleFavouriteClick(fav)}
+                                onToggleFavourite={() => handleToggleFavourite(fav)}
+                                compact
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>
-                  <div className="hidden md:grid md:grid-cols-6 md:gap-3">
-                    {filteredFavourites.map((fav) => (
-                      <div key={fav.url} className="w-full">
-                        <ProductCard
-                          id={fav.productId + (fav.sectorId || "")} name={fav.name}
-                          color={fav.productColor} bg={fav.productBg} url={fav.url}
-                          icon={fav.productIcon} isFavourited={true} favouriteItem={fav}
-                          onClick={() => handleFavouriteClick(fav)}
-                          onToggleFavourite={() => handleToggleFavourite(fav)}
-                          compact
-                        />
+                  {/* Desktop */}
+                  <div className="hidden md:block space-y-10">
+                    {favouritesByGroup.map(({ sectorId, label, items }) => (
+                      <div key={sectorId}>
+                        <div className="mb-4 flex items-center justify-between">
+                          <h2 className="font-display text-xl font-bold tracking-tight text-gray-900">{label}</h2>
+                        </div>
+                        <div className="-mx-10 flex gap-3 overflow-x-auto px-10 pb-2">
+                          {items.map((fav) => (
+                            <div key={fav.url} className="w-[235px] flex-shrink-0">
+                              <ProductCard
+                                id={fav.productId + (fav.sectorId || "")} name={fav.name}
+                                color={fav.productColor} bg={fav.productBg} url={fav.url}
+                                icon={fav.productIcon} categoryLabel={getSectorLabel(products.find((p) => p.id === fav.productId)?.group)} isFavourited={true} favouriteItem={fav}
+                                onClick={() => handleFavouriteClick(fav)}
+                                onToggleFavourite={() => handleToggleFavourite(fav)}
+                                compact
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -378,33 +522,53 @@ export function HubContent() {
             <>
               {filteredRecents.length > 0 ? (
                 <>
-                  <div className="flex flex-wrap gap-2 md:hidden">
-                    {filteredRecents.map((rec) => (
-                      <div key={rec.url} className="w-[calc(50%-4px)]">
-                        <ProductCard
-                          id={rec.productId + (rec.sectorId || "")} name={rec.name}
-                          color={rec.productColor} bg={rec.productBg} url={rec.url}
-                          icon={rec.productIcon} isFavourited={isFavourited(rec.url)}
-                          favouriteItem={rec}
-                          onClick={() => handleFavouriteClick(rec)}
-                          onToggleFavourite={() => handleToggleFavourite(rec)}
-                          compact
-                        />
+                  {/* Mobile */}
+                  <div className="space-y-7 md:hidden">
+                    {recentsByGroup.map(({ sectorId, label, items }) => (
+                      <div key={sectorId}>
+                        <div className="mb-2.5 flex items-center justify-between">
+                          <h2 className="font-display text-[15px] font-bold tracking-tight text-gray-900">{label}</h2>
+                        </div>
+                        <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-1">
+                          {items.map((rec) => (
+                            <div key={rec.url} className="w-[235px] flex-shrink-0">
+                              <ProductCard
+                                id={rec.productId + (rec.sectorId || "")} name={rec.name}
+                                color={rec.productColor} bg={rec.productBg} url={rec.url}
+                                icon={rec.productIcon} categoryLabel={getSectorLabel(products.find((p) => p.id === rec.productId)?.group)} isFavourited={isFavourited(rec.url)}
+                                favouriteItem={rec}
+                                onClick={() => handleFavouriteClick(rec)}
+                                onToggleFavourite={() => handleToggleFavourite(rec)}
+                                compact
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>
-                  <div className="hidden md:grid md:grid-cols-6 md:gap-3">
-                    {filteredRecents.map((rec) => (
-                      <div key={rec.url} className="w-full">
-                        <ProductCard
-                          id={rec.productId + (rec.sectorId || "")} name={rec.name}
-                          color={rec.productColor} bg={rec.productBg} url={rec.url}
-                          icon={rec.productIcon} isFavourited={isFavourited(rec.url)}
-                          favouriteItem={rec}
-                          onClick={() => handleFavouriteClick(rec)}
-                          onToggleFavourite={() => handleToggleFavourite(rec)}
-                          compact
-                        />
+                  {/* Desktop */}
+                  <div className="hidden md:block space-y-10">
+                    {recentsByGroup.map(({ sectorId, label, items }) => (
+                      <div key={sectorId}>
+                        <div className="mb-4 flex items-center justify-between">
+                          <h2 className="font-display text-xl font-bold tracking-tight text-gray-900">{label}</h2>
+                        </div>
+                        <div className="-mx-10 flex gap-3 overflow-x-auto px-10 pb-2">
+                          {items.map((rec) => (
+                            <div key={rec.url} className="w-[235px] flex-shrink-0">
+                              <ProductCard
+                                id={rec.productId + (rec.sectorId || "")} name={rec.name}
+                                color={rec.productColor} bg={rec.productBg} url={rec.url}
+                                icon={rec.productIcon} categoryLabel={getSectorLabel(products.find((p) => p.id === rec.productId)?.group)} isFavourited={isFavourited(rec.url)}
+                                favouriteItem={rec}
+                                onClick={() => handleFavouriteClick(rec)}
+                                onToggleFavourite={() => handleToggleFavourite(rec)}
+                                compact
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>

@@ -30,6 +30,7 @@ interface ProductCardProps {
   bg: string;
   url: string;
   badge?: string | null;
+  categoryLabel?: string;
   icon: string;
   isFavourited?: boolean;
   favouriteItem?: FavouriteItem | null;
@@ -210,12 +211,14 @@ export function ProductCard({
   bg,
   url,
   badge,
+  categoryLabel,
   icon,
   isFavourited: liked = false,
   onClick,
   onToggleFavourite,
   compact,
 }: ProductCardProps) {
+  const badgeLabel = badge ?? categoryLabel;
   /* ── Compact card: 235px fixed-width for horizontal scroll rows ── */
   if (compact) {
     return (
@@ -234,10 +237,10 @@ export function ProductCard({
             </div>
 
             {/* Badge */}
-            {badge && (
+            {badgeLabel && (
               <div className="absolute left-1.5 top-0.5">
                 <span className="rounded-full px-1.5 py-[2px] font-display text-[8px] font-semibold tracking-tight shadow-sm text-white" style={{ background: color }}>
-                  {badge}
+                  {badgeLabel}
                 </span>
               </div>
             )}
@@ -295,10 +298,10 @@ export function ProductCard({
           </div>
 
           {/* Badge */}
-          {badge && (
+          {badgeLabel && (
             <div className="absolute left-2 top-1">
               <span className="rounded-full border border-white/50 px-2.5 py-[4px] font-display text-[10px] font-semibold tracking-tight shadow-sm text-white" style={{ background: color }}>
-                {badge}
+                {badgeLabel}
               </span>
             </div>
           )}
